@@ -101,6 +101,11 @@ There is also `scripts/custom_assets_test.py`, which exercises the add-your-own-
 
 Keep that smoke test passing when you change the backend, frontend, or schema.
 
+## Roadmap
+
+Ideas for making the game feel more like real trading, from conditional orders and
+trading fees to market hours, dividends, and short selling, live in `ROADMAP.md`.
+
 ## License
 
 MIT. See `LICENSE`.
