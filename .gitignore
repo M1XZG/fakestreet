@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+trading_game.db
+*.db
+*.sqlite3
+data/
+.env
+tmp/
+.DS_Store
+.pytest_cache/
+*.egg-info/
+build/
+dist/

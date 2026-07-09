@@ -1,0 +1,13 @@
+.git
+.venv
+.venv/
+__pycache__
+**/__pycache__
+*.pyc
+trading_game.db
+*.db
+data/
+tmp/
+.env
+.DS_Store
+node_modules

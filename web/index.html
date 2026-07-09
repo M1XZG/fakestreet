@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LAN Trading Desk</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <main id="start-screen" class="start-screen">
+    <section class="hero-card">
+      <p class="eyebrow">Local paper trading league</p>
+      <h1>Turn virtual cash into bragging rights.</h1>
+      <p class="hero-copy">Sign in, watch live markets move, and climb the leaderboard from any device on the LAN.</p>
+      <div class="auth-tabs" role="tablist" aria-label="Account options">
+        <button class="auth-tab active" data-auth-mode="signin" type="button">Sign in</button>
+        <button class="auth-tab" data-auth-mode="register" type="button">Create account</button>
+        <button class="auth-tab" data-auth-mode="recover" type="button">Forgot password</button>
+      </div>
+      <form id="signin-form" class="login-form auth-form" data-auth-form="signin">
+        <label for="signin-username">Trader name</label>
+        <input id="signin-username" name="username" maxlength="40" autocomplete="username" placeholder="e.g. rocketbadger" required>
+        <label for="signin-password">Password</label>
+        <input id="signin-password" name="password" type="password" autocomplete="current-password" minlength="4" required>
+        <button type="submit">Sign in</button>
+      </form>
+      <form id="register-form" class="login-form auth-form hidden" data-auth-form="register">
+        <label for="register-username">Trader name</label>
+        <input id="register-username" name="username" maxlength="40" autocomplete="username" placeholder="e.g. rocketbadger" required>
+        <label for="register-password">Password</label>
+        <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="4" required>
+        <label for="register-recovery">Memorable word (for password recovery)</label>
+        <input id="register-recovery" name="recovery_word" autocomplete="off" required>
+        <p class="auth-note">This word is the only way to recover a forgotten password. Pick something you'll remember.</p>
+        <button type="submit">Create account</button>
+      </form>
+      <form id="recover-form" class="login-form auth-form hidden" data-auth-form="recover">
+        <label for="recover-username">Trader name</label>
+        <input id="recover-username" name="username" maxlength="40" autocomplete="username" required>
+        <label for="recover-word">Memorable word</label>
+        <input id="recover-word" name="recovery_word" autocomplete="off" required>
+        <label for="recover-password">New password</label>
+        <input id="recover-password" name="new_password" type="password" autocomplete="new-password" minlength="4" required>
+        <button type="submit">Reset password</button>
+      </form>
+      <p id="auth-status" class="form-status" role="status"></p>
+    </section>
+  </main>
+
+  <div id="app-shell" class="app-shell hidden">
+    <header class="desk-header">
+      <div>
+        <p class="eyebrow">Trading desk</p>
+        <h1 id="player-name">Trader</h1>
+      </div>
+      <section class="summary-grid" aria-label="Account summary">
+        <div class="summary-card"><span>Cash</span><strong id="summary-cash">--</strong></div>
+        <div class="summary-card"><span>Net worth</span><strong id="summary-net-worth">--</strong></div>
+        <div class="summary-card"><span>Total P/L</span><strong id="summary-pl">--</strong></div>
+      </section>
+      <button id="switch-player" class="ghost-button" type="button">Log out</button>
+    </header>
+
+    <nav class="tabs" aria-label="Main sections">
+      <button class="tab-button active" data-tab="market" type="button">Market</button>
+      <button class="tab-button" data-tab="portfolio" type="button">Portfolio</button>
+      <button class="tab-button" data-tab="history" type="button">History</button>
+      <button class="tab-button" data-tab="leaderboard" type="button">Leaderboard</button>
+    </nav>
+
+    <section id="market" class="tab-panel active" aria-labelledby="Market">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Live universe</p>
+          <h2>Market</h2>
+        </div>
+        <div class="market-toolbar">
+          <div id="asset-filters" class="pill-group" aria-label="Asset class filter">
+            <button class="pill active" data-filter="all" type="button">All</button>
+            <button class="pill" data-filter="stock" type="button">Stocks</button>
+            <button class="pill" data-filter="crypto" type="button">Crypto</button>
+            <button class="pill" data-filter="fiat" type="button">FIAT</button>
+          </div>
+          <button id="add-asset-open" class="ghost-button add-asset-button" type="button">＋ Add asset</button>
+        </div>
+      </div>
+      <div id="market-status" class="inline-status">Loading market...</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Asset</th><th>Price</th><th>Change</th><th class="actions-col">Actions</th></tr></thead>
+          <tbody id="market-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="portfolio" class="tab-panel" aria-labelledby="Portfolio">
+      <div class="panel-heading"><div><p class="eyebrow">Positions</p><h2>Portfolio</h2></div></div>
+      <div id="portfolio-summary" class="portfolio-summary"></div>
+      <div id="portfolio-empty" class="empty-state hidden">You don't own anything yet. Head to the Market and make your first move.</div>
+      <div class="table-wrap">
+        <table class="data-table dense">
+          <thead><tr><th>Asset</th><th>Qty</th><th>Avg cost</th><th>Price</th><th>Value</th><th>P/L</th><th class="actions-col">Actions</th></tr></thead>
+          <tbody id="holdings-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="history" class="tab-panel" aria-labelledby="History">
+      <div class="panel-heading"><div><p class="eyebrow">Ledger</p><h2>History</h2></div></div>
+      <div id="history-empty" class="empty-state hidden">No trades yet. The ledger is waiting.</div>
+      <div class="table-wrap">
+        <table class="data-table dense">
+          <thead><tr><th>Time</th><th>Side</th><th>Symbol</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="leaderboard" class="tab-panel" aria-labelledby="Leaderboard">
+      <div class="panel-heading"><div><p class="eyebrow">Local league</p><h2>Leaderboard</h2></div></div>
+      <div id="leaderboard-empty" class="empty-state hidden">No ranked players yet.</div>
+      <div class="table-wrap">
+        <table class="data-table dense">
+          <thead><tr><th>Rank</th><th>Trader</th><th>Net worth</th><th>Total P/L</th></tr></thead>
+          <tbody id="leaderboard-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="trade-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="trade-title">
+    <div class="modal-card trade-card">
+      <button class="close-button" data-close="trade" type="button" aria-label="Close trade panel">×</button>
+      <p class="eyebrow">Order ticket</p>
+      <h2 id="trade-title">Trade</h2>
+      <form id="trade-form" class="trade-form">
+        <label for="trade-symbol">Asset</label>
+        <select id="trade-symbol" name="symbol" required></select>
+        <div class="toggle-row" aria-label="Trade side">
+          <button class="side-toggle active" data-side="buy" type="button">Buy</button>
+          <button class="side-toggle" data-side="sell" type="button">Sell</button>
+        </div>
+        <label for="trade-quantity">Quantity</label>
+        <input id="trade-quantity" name="quantity" type="number" step="any" min="0" inputmode="decimal" placeholder="0.5" required>
+        <div class="estimate-box">
+          <span>Estimated total</span>
+          <strong id="trade-estimate">$0.00</strong>
+          <small id="trade-price-note"></small>
+        </div>
+        <button id="trade-submit" type="submit">Submit order</button>
+        <p id="trade-message" class="form-status" role="status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-asset-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="add-asset-title">
+    <div class="modal-card add-asset-card">
+      <button class="close-button" data-close="add-asset" type="button" aria-label="Close add asset panel">×</button>
+      <p class="eyebrow">Expand the market</p>
+      <h2 id="add-asset-title">Add your own asset</h2>
+      <div id="add-asset-classes" class="toggle-row asset-class-toggle" aria-label="Asset class">
+        <button class="side-toggle active" data-add-class="stock" type="button">Stock</button>
+        <button class="side-toggle" data-add-class="crypto" type="button">Crypto</button>
+        <button class="side-toggle" data-add-class="fiat" type="button">FIAT</button>
+      </div>
+      <form id="add-asset-form" class="trade-form add-asset-form">
+        <label id="add-asset-query-label" for="add-asset-query">Ticker (e.g. BABA)</label>
+        <div class="search-row">
+          <input id="add-asset-query" name="query" autocomplete="off" placeholder="BABA" required>
+          <button id="add-asset-search" class="ghost-button" type="button">Search</button>
+        </div>
+        <p id="add-asset-help" class="auth-note">Enter a ticker and add it directly.</p>
+        <div id="add-asset-results" class="search-results hidden" role="listbox" aria-label="Asset search results"></div>
+        <button id="add-asset-submit" type="submit">Add stock</button>
+        <p id="add-asset-message" class="form-status" role="status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="chart-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="chart-title">
+    <div class="modal-card chart-card">
+      <button class="close-button" data-close="chart" type="button" aria-label="Close chart">×</button>
+      <div class="panel-heading chart-heading">
+        <div><p class="eyebrow">Price history</p><h2 id="chart-title">Chart</h2></div>
+        <div id="range-buttons" class="pill-group compact">
+          <button class="pill" data-range="1d" type="button">1d</button>
+          <button class="pill" data-range="5d" type="button">5d</button>
+          <button class="pill active" data-range="1mo" type="button">1mo</button>
+          <button class="pill" data-range="6mo" type="button">6mo</button>
+          <button class="pill" data-range="1y" type="button">1y</button>
+        </div>
+      </div>
+      <div id="chart-status" class="inline-status">Loading chart...</div>
+      <div class="chart-box"><canvas id="price-chart"></canvas></div>
+    </div>
+  </div>
+
+  <script src="/vendor/chart.umd.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

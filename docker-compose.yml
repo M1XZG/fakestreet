@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      TRADING_GAME_DB: /app/data/trading_game.db
+    volumes:
+      - trading-game-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  trading-game-data:
